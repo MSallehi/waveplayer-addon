@@ -46,7 +46,7 @@ class WavePlayer_Integration
 
         // Convert to main plugin's format
         return do_shortcode(sprintf(
-            '[waveplayer ids="%d"]',
+            '[waveplayer ids="%s"]',
             $ids,
         ));
     }
