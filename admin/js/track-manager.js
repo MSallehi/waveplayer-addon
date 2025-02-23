@@ -8,6 +8,9 @@ jQuery(document).ready(function ($) {
     update: updateTrackNumbers,
   });
 
+  // Get Track Data
+  getTrackData();
+
   // Add Track Button
   $container.on("click", ".add-track", function (e) {
     e.preventDefault();
@@ -15,8 +18,6 @@ jQuery(document).ready(function ($) {
     var $button = $(this);
     var $tracksContainer = $container.find(".tracks-container");
     var index = $tracksContainer.children().length;
-
-    console.log(wvpAddon);
 
     // Disable button and show loading state
     $button
@@ -29,7 +30,7 @@ jQuery(document).ready(function ($) {
       type: "POST",
       data: {
         action: "wpa_add_track",
-        nonce: $("#wp_playlist_tracks_nonce").val(),
+        nonce: $("#playlist_tracks_nonce").val(),
         index: index,
       },
       success: function (response) {
@@ -121,6 +122,34 @@ jQuery(document).ready(function ($) {
             $(this).attr("name", name);
           }
         });
+    });
+  }
+
+  function getTrackData() {
+    $.ajax({
+      url: ajaxurl,
+      type: "POST",
+      data: {
+        action: "wpa_get_track",
+        nonce: $("#get_playlist_tracks_nonce").val(),
+        post_id: $("#playlist_post_id").val(),
+      },
+      beforeSend: function () {
+        $("#playlist-spinner").show();
+      },
+      success: function (response) {
+        if (response.success) {
+          var $tracksContainer = $("#playlist-tracks .tracks-container");
+          $tracksContainer.html(response.data.html);
+          updateTrackNumbers();
+        }
+        console.log(response);
+      },
+      complete: function () {
+        // Re-enable button and remove loading state
+
+        $("#playlist-spinner").hide();
+      },
     });
   }
 });

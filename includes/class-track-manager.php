@@ -1,29 +1,6 @@
 <?php
 class WavePlayer_Addon_Track_Manager
 {
-    public function render_tracks_meta_box($post)
-    {
-        wp_nonce_field('wp_playlist_tracks', 'wp_playlist_tracks_nonce');
-        $tracks = get_post_meta($post->ID, '_playlist_tracks', true);
-        if (!is_array($tracks)) {
-            $tracks = [];
-        }
-        ?>
-        <div id="playlist-tracks" class="playlist-tracks-wrapper">
-            <div class="tracks-container">
-                <?php
-        if (!empty($tracks)) {
-            foreach ($tracks as $index => $track) {
-                $this->render_track_row($track, $index);
-            }
-        }
-        ?>
-            </div>
-            <button type="button" class="button add-track"><?php _e('Add Track', 'waveplayer-addon'); ?></button>
-        </div>
-        <?php
-    }
-
     private function render_track_row($track = [], $index = 0)
     {
         ?>
@@ -59,7 +36,7 @@ class WavePlayer_Addon_Track_Manager
 
     public function handle_ajax_add_track()
     {
-        check_ajax_referer('wp_playlist_tracks', 'nonce');
+        check_ajax_referer('save_playlist_tracks', 'nonce');
 
         if (!current_user_can('edit_posts')) {
             wp_send_json_error('Permission denied');
@@ -69,6 +46,34 @@ class WavePlayer_Addon_Track_Manager
         ob_start();
         $this->render_track_row([], $index);
         $html = ob_get_clean();
+
+        wp_send_json_success(['html' => $html]);
+    }
+
+    public function handle_ajax_get_track()
+    {
+        check_ajax_referer('get_playlist_tracks', 'nonce');
+
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : false;
+
+        if (!$post_id) {
+            wp_send_json_error('Invalid post ID');
+        }
+
+        $tracks = get_post_meta($post_id, '_playlist_tracks', true);
+
+        if (!is_array($tracks)) {
+            $tracks = [];
+        }
+
+        $html = '';
+        if (!empty($tracks)) {
+            ob_start();
+            foreach ($tracks as $index => $track) {
+                $this->render_track_row($track, $index);
+            }
+            $html = ob_get_clean();
+        }
 
         wp_send_json_success(['html' => $html]);
     }

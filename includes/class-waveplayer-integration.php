@@ -10,32 +10,7 @@ class WavePlayer_Integration
      */
     public function __construct()
     {
-        add_filter('waveplayer_playlist_data', [$this, 'add_playlist_data'], 10, 2);
-        add_filter('waveplayer_track_data', [$this, 'modify_track_data'], 10, 2);
         add_shortcode('wvp_playlist', [$this, 'playlist_shortcode']);
-    }
-
-    /**
-     * Add custom playlist data to WavePlayer
-     */
-    public function add_playlist_data($data, $playlist_id)
-    {
-        $tracks = get_post_meta($playlist_id, '_playlist_tracks', true);
-
-        if (!empty($tracks)) {
-            $data['tracks'] = $tracks;
-        }
-
-        return $data;
-    }
-
-    /**
-     * Modify track data before it's passed to WavePlayer
-     */
-    public function modify_track_data($track_data, $track)
-    {
-        // Add any custom track modifications here
-        return $track_data;
     }
 
     /**
@@ -44,40 +19,47 @@ class WavePlayer_Integration
     public function playlist_shortcode($atts)
     {
         $atts = shortcode_atts([
-            'id'    => 0,
-            'theme' => 'default',
-            'width' => '100%',
+            'playlist' => 0,
         ], $atts);
 
-        if (empty($atts['id'])) {
+        if (empty($atts['playlist'])) {
             return '';
         }
 
-        // Get playlist tracks
-        $tracks = get_post_meta($atts['id'], '_playlist_tracks', true);
+        $playlist_id = $atts['playlist'];
+
+        $tracks = get_post_meta($playlist_id, '_playlist_tracks', true);
 
         if (empty($tracks)) {
             return '';
         }
 
-        // Generate unique player ID
-        $player_id = 'wvp-' . $atts['id'] . '-' . uniqid();
+        $ids_array = [];
+        foreach ($tracks as $key => $track) {
+            $att_id = $this->attachment_url_to_postid($track['audio']);
+            if ($att_id) {
+                $ids_array[] = $att_id;
+            }
+        }
 
-        ob_start();
-        ?>
-        <div id="<?php echo esc_attr($player_id); ?>"
-             class="waveplayer-addon-player"
-             style="width: <?php echo esc_attr($atts['width']); ?>">
-        </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                new WavePlayer('#<?php echo esc_js($player_id); ?>', {
-                    theme: '<?php echo esc_js($atts['theme']); ?>',
-                    tracks: <?php echo wp_json_encode($tracks); ?>
-                });
-            });
-        </script>
-        <?php
-return ob_get_clean();
+        $ids = implode(',', $ids_array);
+
+        // Convert to main plugin's format
+        return do_shortcode(sprintf(
+            '[waveplayer ids="%d"]',
+            $ids,
+        ));
+    }
+
+    public function attachment_url_to_postid($url)
+    {
+        if (strpos($url, 'http') !== 0 && strpos($url, '//') !== 0) {
+            $upload_path = trailingslashit(str_replace(site_url(), '', wp_upload_dir()['baseurl']));
+            if (0 === strpos($url, $upload_path)) {
+                $url = site_url() . $url;
+            }
+        }
+
+        return (int) attachment_url_to_postid($url);
     }
 }

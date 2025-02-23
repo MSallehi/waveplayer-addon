@@ -78,6 +78,7 @@ class WavePlayer_Addon
 
         $track_manager = new WavePlayer_Addon_Track_Manager();
         add_action('wp_ajax_wpa_add_track', [$track_manager, 'handle_ajax_add_track']);
+        add_action('wp_ajax_wpa_get_track', [$track_manager, 'handle_ajax_get_track']);
 
         // Admin assets
         add_action('admin_enqueue_scripts', [$this, 'admin_assets']);
@@ -93,7 +94,7 @@ class WavePlayer_Addon
             <p><?php _e('WavePlayer Addon requires WavePlayer plugin to be installed and activated.', 'waveplayer-addon'); ?></p>
         </div>
         <?php
-}
+    }
 
     /**
      * Enqueue admin assets
@@ -102,7 +103,7 @@ class WavePlayer_Addon
     {
         $screen = get_current_screen();
 
-        if ($screen->post_type !== 'wp_playlist') {
+        if ($screen->post_type !== 'waveplayer_playlist') {
             return;
         }
 
