@@ -23,7 +23,10 @@ jQuery(document).ready(function ($) {
     $button
       .prop("disabled", true)
       .addClass("button-loading")
-      .html('<span class="spinner is-active"></span> Adding...');
+      .html(
+        '<span class="spinner is-active"></span> ' +
+          wp.i18n.__("Adding...", "waveplayer-addon")
+      );
 
     $.ajax({
       url: ajaxurl,
@@ -44,7 +47,7 @@ jQuery(document).ready(function ($) {
         $button
           .prop("disabled", false)
           .removeClass("button-loading")
-          .html("Add Track");
+          .html(wp.i18n.__("Add Track", "waveplayer-addon"));
       },
     });
   });
@@ -83,9 +86,9 @@ jQuery(document).ready(function ($) {
 
     // Create media uploader
     var uploader = wp.media({
-      title: "Select Audio File",
+      title: wp.i18n.__("Select Audio File", "waveplayer-addon"),
       button: {
-        text: "Use this audio",
+        text: wp.i18n.__("Use this audio", "waveplayer-addon"),
       },
       multiple: false,
       library: {

@@ -29,13 +29,13 @@ class WavePlayer_Playlist_Post_Type
     {
         register_post_type(self::POST_TYPE, [
             'labels'       => [
-                'name'          => 'Playlists',
-                'singular_name' => 'Playlist',
-                'add_new'       => 'Add New Playlist',
-                'add_new_item'  => 'Add New Playlist',
-                'edit_item'     => 'Edit Playlist',
-                'view_item'     => 'View Playlist',
-                'search_items'  => 'Search Playlists',
+                'name'          => __('Playlists', 'waveplayer-addon'),
+                'singular_name' => __('Playlist', 'waveplayer-addon'),
+                'add_new'       => __('Add New Playlist', 'waveplayer-addon'),
+                'add_new_item'  => __('Add New Playlist', 'waveplayer-addon'),
+                'edit_item'     => __('Edit Playlist', 'waveplayer-addon'),
+                'view_item'     => __('View Playlist', 'waveplayer-addon'),
+                'search_items'  => __('Search Playlists', 'waveplayer-addon'),
             ],
             'public'       => true,
             'supports'     => ['title'],
@@ -52,7 +52,7 @@ class WavePlayer_Playlist_Post_Type
     {
         add_meta_box(
             self::POST_TYPE . '_tracks',
-            'Playlist Tracks',
+            __('Playlist Tracks', 'waveplayer-addon'),
             [$this, 'render_tracks_meta_box'],
             self::POST_TYPE
         );
@@ -76,7 +76,7 @@ class WavePlayer_Playlist_Post_Type
             <div class="tracks-container">
                 <!-- Track list will go here -->
             </div>
-            <button type="button" class="button add-track">Add Track</button>
+            <button type="button" class="button add-track"><?php _e('Add Track', 'waveplayer-addon'); ?></button>
         </div>
         <?php
 }
@@ -113,7 +113,7 @@ class WavePlayer_Playlist_Post_Type
         foreach ($columns as $key => $value) {
             $new_columns[$key] = $value;
             if ($key === 'title') {
-                $new_columns['shortcode'] = 'Shortcode';
+                $new_columns['shortcode'] = __('Shortcode', 'waveplayer-addon');
             }
         }
         return $new_columns;

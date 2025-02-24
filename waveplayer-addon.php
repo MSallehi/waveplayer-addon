@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: WavePlayer Addon
- * Plugin URI: https://example.com/waveplayer-addon
+ * Plugin URI: https://github.com/MSallehi
  * Description: Adds playlist management capabilities to WavePlayer
  * Version: 1.0.0
- * Author: Your Name
- * Author URI: https://example.com
+ * Author: Mohammad Salehi
+ * Author URI: https://github.com/MSallehi
  * Text Domain: waveplayer-addon
  */
 
@@ -72,6 +72,8 @@ class WavePlayer_Addon
             return;
         }
 
+        add_action('plugins_loaded', [$this, 'load_textdomain']);
+
         // Initialize classes
         new WavePlayer_Playlist_Post_Type();
         new WavePlayer_Integration();
@@ -85,6 +87,14 @@ class WavePlayer_Addon
     }
 
     /**
+     * Load plugin textdomain for translations
+     */
+    public function load_textdomain()
+    {
+        load_plugin_textdomain('waveplayer-addon', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+    }
+
+    /**
      * Display notice if WavePlayer is not active
      */
     public function waveplayer_missing_notice()
@@ -94,7 +104,7 @@ class WavePlayer_Addon
             <p><?php _e('WavePlayer Addon requires WavePlayer plugin to be installed and activated.', 'waveplayer-addon'); ?></p>
         </div>
         <?php
-    }
+}
 
     /**
      * Enqueue admin assets
@@ -117,10 +127,12 @@ class WavePlayer_Addon
         wp_enqueue_script(
             'waveplayer-addon-admin',
             WVP_ADDON_URL . 'admin/js/track-manager.js',
-            ['jquery', 'jquery-ui-sortable'],
+            ['jquery', 'jquery-ui-sortable', 'wp-i18n'],
             WVP_ADDON_VERSION,
             true
         );
+
+        wp_set_script_translations('waveplayer-addon-admin', 'waveplayer-addon', WVP_ADDON_PATH . 'languages');
 
         wp_localize_script('waveplayer-addon-admin', 'wvpAddon', [
             'ajaxurl' => admin_url('admin-ajax.php'),
